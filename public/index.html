@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Rifas</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🎰 Sistema de Rifas</h1>
+            <nav class="nav">
+                <button class="nav-btn active" data-section="rifas">Rifas</button>
+                <button class="nav-btn" data-section="boletos">Boletos</button>
+                <button class="nav-btn" data-section="ganadores">Ganadores</button>
+                <button class="nav-btn" data-section="consulta">Consulta Premios</button>
+                <button class="nav-btn" data-section="ventas">Ventas</button>
+                <button class="nav-btn" data-section="entregas">Entregas</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content container">
+
+        <!-- Sección: Rifas -->
+        <section id="rifas" class="section active">
+            <div class="section-header">
+                <h2>Gestión de Rifas</h2>
+                <button class="btn btn-primary" onclick="mostrarFormularioRifa()">+ Nueva Rifa</button>
+            </div>
+
+            <div id="formulario-rifa" class="card form-card" style="display: none;">
+                <h3>Crear Nueva Rifa</h3>
+                <form id="form-nueva-rifa">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre de la Rifa *</label>
+                            <input type="text" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha del Sorteo *</label>
+                            <input type="date" name="fecha_sorteo" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea name="descripcion" rows="2"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Premio *</label>
+                            <input type="text" name="premio" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Precio del Boleto *</label>
+                            <input type="number" name="precio_boleto" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Número Inicial *</label>
+                            <input type="number" name="numero_inicial" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Número Final *</label>
+                            <input type="number" name="numero_final" value="99" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar Rifa</button>
+                        <button type="button" class="btn btn-secondary" onclick="ocultarFormularioRifa()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="lista-rifas" class="grid">
+                <!-- Las rifas se cargarán aquí -->
+            </div>
+        </section>
+
+        <!-- Sección: Boletos -->
+        <section id="boletos" class="section">
+            <div class="section-header">
+                <h2>Gestión de Boletos</h2>
+                <div>
+                    <select id="select-rifa-boletos" class="select-rifa">
+                        <option value="">Seleccione una rifa</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="generarBoletos()">Generar Boletos</button>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="stats-boletos">
+                <!-- Estadísticas de boletos -->
+            </div>
+
+            <div class="table-container">
+                <table id="tabla-boletos" class="table">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Código de Barras</th>
+                            <th>Estado</th>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Boletos se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sección: Números Ganadores -->
+        <section id="ganadores" class="section">
+            <div class="section-header">
+                <h2>Números Ganadores</h2>
+                <button class="btn btn-primary" onclick="mostrarFormularioGanador()">+ Registrar Ganador</button>
+            </div>
+
+            <div id="formulario-ganador" class="card form-card" style="display: none;">
+                <h3>Registrar Número Ganador</h3>
+                <form id="form-ganador">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rifa *</label>
+                            <select name="rifa_id" id="select-rifa-ganador" required>
+                                <option value="">Seleccione una rifa</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Número Ganador *</label>
+                            <input type="number" name="numero_ganador" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Posición</label>
+                            <input type="text" name="posicion" value="1er lugar">
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción del Premio</label>
+                            <input type="text" name="premio_descripcion">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Registrar</button>
+                        <button type="button" class="btn btn-secondary" onclick="ocultarFormularioGanador()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table id="tabla-ganadores" class="table">
+                    <thead>
+                        <tr>
+                            <th>Rifa</th>
+                            <th>Número</th>
+                            <th>Posición</th>
+                            <th>Premio</th>
+                            <th>Cliente</th>
+                            <th>Fecha Sorteo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Ganadores se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sección: Consulta de Premios -->
+        <section id="consulta" class="section">
+            <h2>Consulta de Premios</h2>
+
+            <div class="consulta-container">
+                <div class="card">
+                    <h3>Escanear Código de Barras</h3>
+                    <div class="form-group">
+                        <input type="text" id="input-codigo-barras" placeholder="Escanee o ingrese el código" autofocus>
+                        <button class="btn btn-primary" onclick="consultarPorCodigo()">Consultar</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Consulta Manual</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rifa</label>
+                            <select id="select-rifa-consulta">
+                                <option value="">Seleccione una rifa</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Número</label>
+                            <input type="number" id="input-numero-consulta">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="consultarPorNumero()">Consultar</button>
+                </div>
+            </div>
+
+            <div id="resultado-consulta" class="resultado-consulta">
+                <!-- Resultado se mostrará aquí -->
+            </div>
+        </section>
+
+        <!-- Sección: Ventas -->
+        <section id="ventas" class="section">
+            <div class="section-header">
+                <h2>Ventas Diarias</h2>
+                <input type="date" id="fecha-ventas" class="date-input">
+                <button class="btn btn-primary" onclick="cargarVentasDiarias()">Consultar</button>
+            </div>
+
+            <div class="stats-grid" id="stats-ventas">
+                <!-- Estadísticas de ventas -->
+            </div>
+
+            <div class="table-container">
+                <table id="tabla-ventas" class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Rifa</th>
+                            <th>Boleto</th>
+                            <th>Cliente</th>
+                            <th>Precio</th>
+                            <th>Vendedor</th>
+                            <th>Forma de Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Ventas se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sección: Entregas -->
+        <section id="entregas" class="section">
+            <div class="section-header">
+                <h2>Entrega de Premios</h2>
+                <button class="btn btn-primary" onclick="mostrarFormularioEntrega()">+ Registrar Entrega</button>
+            </div>
+
+            <div id="formulario-entrega" class="card form-card" style="display: none;">
+                <h3>Registrar Entrega de Premio</h3>
+                <form id="form-entrega">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rifa *</label>
+                            <select name="rifa_id" id="select-rifa-entrega" required onchange="cargarGanadoresPendientes(this.value)">
+                                <option value="">Seleccione una rifa</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Boleto Ganador *</label>
+                            <select name="boleto_id" id="select-boleto-ganador" required>
+                                <option value="">Seleccione un boleto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="numero_ganador_id" id="numero-ganador-id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre del Ganador *</label>
+                            <input type="text" name="ganador_nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Identificación</label>
+                            <input type="text" name="ganador_identificacion">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" name="ganador_telefono">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="ganador_email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Premio Entregado *</label>
+                        <input type="text" name="premio_entregado" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Responsable de Entrega</label>
+                        <input type="text" name="responsable_entrega">
+                    </div>
+                    <div class="form-group">
+                        <label>Observaciones</label>
+                        <textarea name="observaciones" rows="2"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Registrar Entrega</button>
+                        <button type="button" class="btn btn-secondary" onclick="ocultarFormularioEntrega()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table id="tabla-entregas" class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Rifa</th>
+                            <th>Boleto</th>
+                            <th>Ganador</th>
+                            <th>Premio</th>
+                            <th>Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Entregas se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

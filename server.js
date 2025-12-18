@@ -19,6 +19,7 @@ const ganadoresRoutes = require('./modules/ganadores/ganadores.routes');
 const premiosRoutes = require('./modules/premios/premios.routes');
 const ventasRoutes = require('./modules/ventas/ventas.routes');
 const entregasRoutes = require('./modules/entregas/entregas.routes');
+const vendedoresRoutes = require('./modules/vendedores/vendedores.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,6 +43,7 @@ app.use('/api/ganadores', ganadoresRoutes);
 app.use('/api/premios', premiosRoutes);
 app.use('/api/ventas', ventasRoutes);
 app.use('/api/entregas', entregasRoutes);
+app.use('/api/vendedores', vendedoresRoutes);
 
 // Ruta de salud del servidor
 app.get('/api/health', (req, res) => {

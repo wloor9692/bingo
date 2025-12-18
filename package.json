@@ -1,15 +1,16 @@
 {
-  "name": "sistema-rifa-profesional",
-  "version": "1.0.0",
-  "description": "Sistema profesional para administración y gestión de rifas diarias",
+  "name": "sistema-bingo-profesional",
+  "version": "2.0.0",
+  "description": "Sistema profesional para administración y gestión de bingo con vendedores, impresión QR y juego en tiempo real",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "init-db": "node scripts/init-database.js",
+    "update-db-bingo": "node scripts/update-database-bingo.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["rifa", "lottery", "raffle", "tickets", "gestión"],
+  "keywords": ["bingo", "lottery", "raffle", "tickets", "gestión", "vendedores", "qr", "real-time"],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -22,7 +23,11 @@
     "jsonwebtoken": "^9.0.2",
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "socket.io": "^4.6.1",
+    "qrcode": "^1.5.3",
+    "pdfkit": "^0.13.0",
+    "canvas": "^2.11.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

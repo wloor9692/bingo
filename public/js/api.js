@@ -1,175 +1,241 @@
 /**
- * API Client - Maneja todas las peticiones HTTP al backend
+ * API Client - Sistema de BINGO
+ * Maneja todas las peticiones HTTP al backend PHP
  */
 
-const API_BASE_URL = '/api';
-
 class API {
-  // Helper para hacer peticiones
-  static async request(endpoint, options = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
-    };
+    static baseURL = '/bingo/api';
 
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
+    /**
+     * Helper para hacer peticiones
+     */
+    static async request(endpoint, method = 'GET', body = null) {
+        const url = `${this.baseURL}/${endpoint}`;
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Error en la petición');
-      }
+        const options = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
 
-      return data;
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
+        if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+            options.body = JSON.stringify(body);
+        }
+
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.message || 'Error en la petición');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
     }
-  }
 
-  // RIFAS
-  static async obtenerRifas(estado = null) {
-    const query = estado ? `?estado=${estado}` : '';
-    return this.request(`/rifas${query}`);
-  }
+    // ==================== VENDEDORES ====================
+    static async getVendedores(activo = null) {
+        const query = activo !== null ? `?activo=${activo}` : '';
+        return this.request(`vendedores.php${query}`);
+    }
 
-  static async crearRifa(rifaData) {
-    return this.request('/rifas', {
-      method: 'POST',
-      body: JSON.stringify(rifaData),
-    });
-  }
+    static async getVendedor(id) {
+        return this.request(`vendedores.php?id=${id}`);
+    }
 
-  static async obtenerRifa(id) {
-    return this.request(`/rifas/${id}`);
-  }
+    static async crearVendedor(data) {
+        return this.request('vendedores.php', 'POST', data);
+    }
 
-  static async actualizarRifa(id, rifaData) {
-    return this.request(`/rifas/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(rifaData),
-    });
-  }
+    static async actualizarVendedor(id, data) {
+        return this.request(`vendedores.php?id=${id}`, 'PUT', data);
+    }
 
-  static async eliminarRifa(id) {
-    return this.request(`/rifas/${id}`, {
-      method: 'DELETE',
-    });
-  }
+    static async cambiarEstadoVendedor(id, activo) {
+        return this.request(`vendedores.php?id=${id}`, 'PATCH', { activo });
+    }
 
-  static async cambiarEstadoRifa(id, estado) {
-    return this.request(`/rifas/${id}/estado`, {
-      method: 'PATCH',
-      body: JSON.stringify({ estado }),
-    });
-  }
+    static async eliminarVendedor(id) {
+        return this.request(`vendedores.php?id=${id}`, 'DELETE');
+    }
 
-  static async obtenerEstadisticasRifa(id) {
-    return this.request(`/rifas/${id}/estadisticas`);
-  }
+    static async getEstadisticasVendedor(id) {
+        return this.request(`vendedores.php?estadisticas=1&id=${id}`);
+    }
 
-  // BOLETOS
-  static async generarBoletos(rifaId) {
-    return this.request(`/boletos/generar/${rifaId}`, {
-      method: 'POST',
-    });
-  }
+    // ==================== EVENTOS ====================
+    static async getEventos(filtros = {}) {
+        const params = new URLSearchParams(filtros).toString();
+        return this.request(`eventos.php${params ? '?' + params : ''}`);
+    }
 
-  static async obtenerBoletosPorRifa(rifaId, estado = null) {
-    const query = estado ? `?estado=${estado}` : '';
-    return this.request(`/boletos/rifa/${rifaId}${query}`);
-  }
+    static async getEvento(id) {
+        return this.request(`eventos.php?id=${id}`);
+    }
 
-  static async buscarBoletoPorCodigo(codigoBarras) {
-    return this.request(`/boletos/codigo/${codigoBarras}`);
-  }
+    static async crearEvento(data) {
+        return this.request('eventos.php', 'POST', data);
+    }
 
-  static async venderBoleto(boletoId, datosVenta) {
-    return this.request(`/boletos/${boletoId}/vender`, {
-      method: 'PUT',
-      body: JSON.stringify(datosVenta),
-    });
-  }
+    static async actualizarEvento(id, data) {
+        return this.request(`eventos.php?id=${id}`, 'PUT', data);
+    }
 
-  static async cancelarVentaBoleto(boletoId) {
-    return this.request(`/boletos/${boletoId}/cancelar`, {
-      method: 'PUT',
-    });
-  }
+    static async cambiarEstadoEvento(id, estado) {
+        return this.request(`eventos.php?id=${id}`, 'PATCH', { estado });
+    }
 
-  static async eliminarBoletosPorRifa(rifaId) {
-    return this.request(`/boletos/rifa/${rifaId}`, {
-      method: 'DELETE',
-    });
-  }
+    static async eliminarEvento(id) {
+        return this.request(`eventos.php?id=${id}`, 'DELETE');
+    }
 
-  // GANADORES
-  static async registrarGanador(ganadorData) {
-    return this.request('/ganadores', {
-      method: 'POST',
-      body: JSON.stringify(ganadorData),
-    });
-  }
+    static async getEstadisticasEvento(id) {
+        return this.request(`eventos.php?estadisticas=1&evento_id=${id}`);
+    }
 
-  static async obtenerGanadores() {
-    return this.request('/ganadores');
-  }
+    static async getFigurasEvento(id) {
+        return this.request(`eventos.php?figuras=1&evento_id=${id}`);
+    }
 
-  static async obtenerGanadoresPorRifa(rifaId) {
-    return this.request(`/ganadores/rifa/${rifaId}`);
-  }
+    // ==================== FIGURAS ====================
+    static async getFiguras(activo = null) {
+        const query = activo !== null ? `?activo=${activo}` : '';
+        return this.request(`figuras.php${query}`);
+    }
 
-  static async verificarNumeroGanador(rifaId, numero) {
-    return this.request(`/ganadores/verificar/${rifaId}/${numero}`);
-  }
+    static async getFigura(id) {
+        return this.request(`figuras.php?id=${id}`);
+    }
 
-  // PREMIOS
-  static async consultarPorCodigoBarras(codigoBarras) {
-    return this.request(`/premios/codigo/${codigoBarras}`);
-  }
+    static async crearFigura(data) {
+        return this.request('figuras.php', 'POST', data);
+    }
 
-  static async consultarPorNumero(rifaId, numero) {
-    return this.request(`/premios/numero/${rifaId}/${numero}`);
-  }
+    static async actualizarFigura(id, data) {
+        return this.request(`figuras.php?id=${id}`, 'PUT', data);
+    }
 
-  static async obtenerGanadoresPendientes() {
-    return this.request('/premios/pendientes');
-  }
+    static async cambiarEstadoFigura(id, activo) {
+        return this.request(`figuras.php?id=${id}`, 'PATCH', { activo });
+    }
 
-  // VENTAS
-  static async registrarVenta(ventaData) {
-    return this.request('/ventas', {
-      method: 'POST',
-      body: JSON.stringify(ventaData),
-    });
-  }
+    static async eliminarFigura(id) {
+        return this.request(`figuras.php?id=${id}`, 'DELETE');
+    }
 
-  static async obtenerVentasPorFecha(fecha) {
-    return this.request(`/ventas/fecha/${fecha}`);
-  }
+    // ==================== ASIGNACIONES ====================
+    static async getAsignaciones(filtros = {}) {
+        const params = new URLSearchParams(filtros).toString();
+        return this.request(`asignaciones.php${params ? '?' + params : ''}`);
+    }
 
-  static async obtenerResumenDiario(fecha) {
-    return this.request(`/ventas/resumen/${fecha}`);
-  }
+    static async getAsignacion(id) {
+        return this.request(`asignaciones.php?id=${id}`);
+    }
 
-  // ENTREGAS
-  static async registrarEntrega(entregaData) {
-    return this.request('/entregas', {
-      method: 'POST',
-      body: JSON.stringify(entregaData),
-    });
-  }
+    static async crearAsignacion(data) {
+        return this.request('asignaciones.php', 'POST', data);
+    }
 
-  static async obtenerEntregas(rifaId = null) {
-    const query = rifaId ? `?rifaId=${rifaId}` : '';
-    return this.request(`/entregas${query}`);
-  }
+    static async buscarBoletoQR(codigoQR) {
+        return this.request(`asignaciones.php?codigo_qr=${encodeURIComponent(codigoQR)}`);
+    }
 
-  static async obtenerEntregasPorRifa(rifaId) {
-    return this.request(`/entregas/rifa/${rifaId}`);
-  }
+    static async marcarVendido(codigoQR, compradorData) {
+        return this.request('asignaciones.php', 'POST', {
+            marcar_vendido: true,
+            codigo_qr: codigoQR,
+            ...compradorData
+        });
+    }
+
+    static async getBoletosHoja(asignacionId) {
+        return this.request(`asignaciones.php?boletos_hoja=${asignacionId}`);
+    }
+
+    static async getEstadisticasAsignaciones(filtros = {}) {
+        const params = new URLSearchParams({ ...filtros, estadisticas: '1' }).toString();
+        return this.request(`asignaciones.php?${params}`);
+    }
+
+    // ==================== DEVOLUCIONES ====================
+    static async getDevoluciones(filtros = {}) {
+        const params = new URLSearchParams(filtros).toString();
+        return this.request(`devoluciones.php${params ? '?' + params : ''}`);
+    }
+
+    static async getDevolucion(id) {
+        return this.request(`devoluciones.php?id=${id}`);
+    }
+
+    static async registrarDevolucion(data) {
+        return this.request('devoluciones.php', 'POST', data);
+    }
+
+    static async verificarDevolucion(codigoHoja) {
+        return this.request(`devoluciones.php?verificar=${encodeURIComponent(codigoHoja)}`);
+    }
+
+    static async getEstadisticasDevoluciones(filtros = {}) {
+        const params = new URLSearchParams({ ...filtros, estadisticas: '1' }).toString();
+        return this.request(`devoluciones.php?${params}`);
+    }
+
+    // ==================== JUEGO ====================
+    static async iniciarJuego(eventoId, iniciadoPor = 1) {
+        return this.request('juego.php', 'POST', {
+            accion: 'iniciar',
+            evento_id: eventoId,
+            iniciado_por: iniciadoPor
+        });
+    }
+
+    static async cantarBolilla(sesionId, numero) {
+        return this.request('juego.php', 'POST', {
+            accion: 'cantar',
+            sesion_id: sesionId,
+            numero: numero
+        });
+    }
+
+    static async validarGanador(sesionId, codigoQR, figuraId) {
+        return this.request('juego.php', 'POST', {
+            accion: 'validar',
+            sesion_id: sesionId,
+            codigo_qr: codigoQR,
+            figura_id: figuraId
+        });
+    }
+
+    static async finalizarJuego(sesionId) {
+        return this.request('juego.php', 'POST', {
+            accion: 'finalizar',
+            sesion_id: sesionId
+        });
+    }
+
+    static async getSesion(sesionId) {
+        return this.request(`juego.php?sesion_id=${sesionId}`);
+    }
+
+    static async getEstadoJuego(sesionId) {
+        return this.request(`juego.php?estado=1&sesion_id=${sesionId}`);
+    }
+
+    static async getBolasCantadas(sesionId) {
+        return this.request(`juego.php?bolas=1&sesion_id=${sesionId}`);
+    }
+
+    static async getGanadores(sesionId) {
+        return this.request(`juego.php?ganadores=1&sesion_id=${sesionId}`);
+    }
+
+    static async getSesionActiva(eventoId) {
+        return this.request(`juego.php?sesion_activa=1&evento_id=${eventoId}`);
+    }
 }

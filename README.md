@@ -12,7 +12,7 @@ Sistema web completo para la administración y gestión de rifas diarias con con
 - ✅ Registro de entrega de premios
 - ✅ Reportes y respaldos
 - ✅ Interfaz web profesional y responsiva
-- Cree un archivo de prueba
+
 
 ## Tecnologías
 
